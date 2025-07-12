@@ -16,39 +16,65 @@ const server = new FastMCP({
 });
 
 // const BASEURL = "http://localhost:8080/api/v1";
-const BASEURL = "http://192.168.10.110:9000/api/v1";
+const BASEURL = "http://192.168.10.108:8080/api/v1";
 
-async function fetchPNSearch(url: URL): Promise<{ url: string; result: any }> {
+interface FetchResult {
+  url: string;
+  //@ts-ignore: return any type JSON
+  result: any;
+}
+async function fetchPNSearch(
+  url: URL,
+  options: { timeout?: number; retries?: number },
+): Promise<FetchResult> {
+  // parse option
+  const { timeout = 10000, retries = 0 } = options;
+  // ユーザーに対してもどんなURLが生成されたか見せるためにデコードする
+  const decodedURL = decodeURIComponent(url.toString());
+  // fetch with timout
+  const controller = new AbortController();
+  const timeoutID = setTimeout(() => controller.abort(), timeout);
+
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: { "Accept": "application/json" },
+    });
+    clearTimeout(timeoutID);
+    // reponse NG
     if (!response.ok) {
-      return {
-        url: decodeURIComponent(url.toString()),
-        result: "Failed to fetch: status" +
-          `${response.status}, ${await response.text()}`,
-      };
+      const errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      return { url: decodedURL, result: errorMessage };
     }
-    console.error("fetch success");
-    const responseText = await response.text();
-    try {
-      const jsonResult = JSON.parse(responseText);
-      return {
-        url: decodeURIComponent(url.toString()),
-        result: jsonResult, // Return the parsed JSON object
-      };
-    } catch (jsonError) {
-      console.error("Failed to parse response as JSON:", jsonError);
-      return {
-        url: decodeURIComponent(url.toString()),
-        result: responseText, // Fallback to raw text if not JSON
-      };
-    }
+    // response OK
+    // Return the parsed JSON object
+    const jsonResult = await response.json();
+    return { url: decodedURL, result: jsonResult };
   } catch (error) {
-    console.error("Fetch error:", error);
-    return {
-      url: decodeURIComponent(url.toString()),
-      result: `Fetch error: ${error}`,
-    };
+    clearTimeout(timeoutID);
+    if (error instanceof Error) {
+      // タイムアウトエラー
+      if (error.name === "AbortError") {
+        const msg = `Request timeout after ${timeout}ms`;
+        return { url: decodedURL, result: msg };
+      }
+      // TypeErrorかNetworkErrorならリトライ
+      if (
+        retries > 0 &&
+        (error.name === "TypeError" || error.name === "NetworkError")
+      ) {
+        console.warn(
+          `Retrying request to ${decodedURL}, attempts remaining: ${retries}`,
+        );
+        return fetchPNSearch(url, { timeout, retries: retries - 1 });
+      }
+      // その他のエラー
+      console.error("Fetch error:", error);
+      return { url: decodedURL, result: `Fetch error: ${error.message}` };
+    }
+    // Error以外の予期せぬエラー
+    console.error("Unexpected error", error);
+    return { url: decodedURL, result: `Unexpected error: ${error}` };
   }
 }
 
@@ -89,7 +115,7 @@ server.addTool({
     }
     console.error("URL:", url);
     // fetchした結果を返す
-    const json = await fetchPNSearch(url);
+    const json = await fetchPNSearch(url, { timeout: 100000, retries: 3 });
     return JSON.stringify(json);
   },
 });
@@ -129,13 +155,13 @@ server.addTool({
     url.searchParams.append("select", "発注納期");
     // ソート列
     url.searchParams.set("orderby", params.orderby ?? "製番"); // orderby は必須
-    url.searchParams.set("limit", params.limit.toString() ?? "50");
-    url.searchParams.set("asc", params.asc.toString() ?? "false");
+    url.searchParams.set("limit", String(params.limit ?? 50));
+    url.searchParams.set("asc", String(params.asc ?? false));
     console.error("URL:", url);
     // return JSON.stringify({ result: result.toString() });
 
     // fetchした結果を返す
-    const json = await fetchPNSearch(url);
+    const json = await fetchPNSearch(url, { timeout: 100000, retries: 3 });
     return JSON.stringify(json);
   },
 });
