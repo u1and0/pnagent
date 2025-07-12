@@ -19,18 +19,20 @@ const server = new FastMCP({
 const BASEURL = "http://192.168.10.110:9000/api/v1";
 
 server.addTool({
-  name: "PNSearch Parts ID search",
+  name: "PNSearch Stock search",
   description: "ユーザーの入力を部品検索用URLに変換して結果を返す",
   parameters: z.object({
     品番: z.string().optional().describe("parts ID"),
-    品名: z.string().optional(),
-    型式: z.string().optional(),
-    limit: z.number().optional(),
-    ask: z.boolean().optional(),
+    品名: z.string().optional().describe("parts name, Japanese name"),
+    型式: z.string().optional().describe(
+      "parts model name, alphabet or number",
+    ),
+    limit: z.number().optional().describe("result max number"),
+    asc: z.boolean().optional().describe("sort order ascending"),
   }),
   execute: async (params) => {
     // URL構築
-    const url = new URL(`${BASEURL}/filter/pid`);
+    const url = new URL(`${BASEURL}/filter/stock`);
     // 検索キーワード
     if (params.品番) url.searchParams.set("品番", params.品番);
     if (params.品名) url.searchParams.set("品名", params.品名);
@@ -39,14 +41,15 @@ server.addTool({
     url.searchParams.set("select", "品番");
     url.searchParams.append("select", "品名");
     url.searchParams.append("select", "型式");
+    url.searchParams.append("select", "在庫数");
     url.searchParams.append("select", "単位");
     // ソート列
     url.searchParams.set("orderby", "品番");
     if (params.limit) {
       url.searchParams.set("limit", params.limit.toString() ?? "100");
     }
-    if (params.ask) {
-      url.searchParams.set("ask", params.ask.toString() ?? "false");
+    if (params.asc) {
+      url.searchParams.set("asc", params.asc.toString() ?? "false");
     }
     console.error("URL:", url);
     // return JSON.stringify({ result: result.toString() });

@@ -30,9 +30,16 @@ $ pnsearch -p 9000
 
 ```
 $ gemini
-$ use MCP pnagent, show me the infomation about Parts ID AAA-100?
- │ ✔  PNSearch Parts ID search (pnagent MCP Server) {"品番":"AAA-100"}                                      │
+╭─────────────────────────────────────────╮
+│  > 品番AAA-100の在庫数を調べてください  │
+╰─────────────────────────────────────────╯
+
+ ╭──────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+ │ ✔  PNSearch Stock search (pnagent MCP Server) {"品番":"AAA-100"}                                         │
  │                                                                                                          │
- │    {"url":"http://192.168.0.1:9000/api/v1/filter/pid?品番=AAA-100&select=品番&select=品名&select=型   │
- │    式&select=単位&orderby=品番","result":[{"品番":"AAA-100","品名":"Some Parts name"
+ │    {"url":"http://192.168.10.110:9000/api/v1/filter/stock?品番=AAA-100&select=品番&select=品名&select=   │
+ │    型式&select=在庫数&select=単位&orderby=品番","result":[{"品番":"AAA-100","品名":"Some Parts Name"     │
+ ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+ ✦ 品番AAA-100の在庫数は4です。
 ```
