@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "dev": "deno run --watch pnagent.ts"
+  },
+  "imports": {
+    "fastmcp": "npm:fastmcp@1.20.5",
+    "zod": "npm:zod@3.24.2"
+  }
+}

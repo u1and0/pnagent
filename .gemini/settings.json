@@ -1,0 +1,11 @@
+{
+  "theme": "Shades Of Purple",
+  "selectedAuthType": "gemini-api-key",
+  "mcpServers": {
+    "pnagent": {
+      "command": "deno",
+      "args": ["run",  "-A",  "./pnagent.ts"]
+    }
+  }
+}
+
