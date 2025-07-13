@@ -136,7 +136,6 @@ server.addTool({
     if (params.型式) url.searchParams.set("型式", params.型式);
     if (params.備考) url.searchParams.set("備考", params.備考);
     // 表示列
-    url.searchParams.set("select", "品番"); // 品番は必須
     SELECTABLE_STOCK_FIELD.forEach((field) => { // その他のフィールドは
       if (params.select.includes(field)) { // paramsにあれば適宜追加
         url.searchParams.append("select", field);
@@ -185,6 +184,11 @@ server.addTool({
     if (params.品名) url.searchParams.set("品名", params.品名);
     if (params.型式) url.searchParams.set("型式", params.型式);
     // 表示列
+    SELECTABLE_HISTORY_FIELD.forEach((field) => {
+      if (params.select.includes(field)) { // paramsにあれば適宜追加
+        url.searchParams.append("select", field);
+      }
+    });
     url.searchParams.set("select", "製番");
     url.searchParams.append("select", "品番");
     url.searchParams.append("select", "品名");
