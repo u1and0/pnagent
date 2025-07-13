@@ -5,6 +5,18 @@
  *
  * [ 注意 ] FastMCP使うときは deno run -A しないといけない。
  * --deny-envなどでenvを拒否するとツールを読み込んでくれない。
+ *
+ * [ 注意 ] コーディングエージェントに返す値は必ず
+ * `JSON.stringify(json)` する必要がある。
+ * FastMCPや本家MCPが必要と指定る型は次の形式
+ * {
+ *   content: [{
+         type: "text",  // string
+         text: ...      // string
+ *   }]
+ * }
+ *
+ * type: text以外だとまた違うのだろうか？
  */
 
 import { FastMCP } from "npm:fastmcp@1.20.5";
@@ -17,12 +29,26 @@ const server = new FastMCP({
 
 // const BASEURL = "http://localhost:8080/api/v1";
 const BASEURL = "http://192.168.10.108:8080/api/v1";
+const DEFAULT_LIMIT = 50;
+const DEFAULT_ASC = false;
+const DEFAULT_DISTINCT = false;
+
+const SELECTABLE_STOCK_FIELD = [
+  "品番",
+  "品名",
+  "型式",
+  "在庫数",
+  "単位",
+  "在庫単価",
+  "備考",
+] as const;
 
 interface FetchResult {
   url: string;
   //@ts-ignore: return any type JSON
   result: any;
 }
+
 async function fetchPNSearch(
   url: URL,
   options: { timeout?: number; retries?: number },
@@ -80,7 +106,7 @@ async function fetchPNSearch(
 
 // 在庫検索
 server.addTool({
-  name: "Stock Search",
+  name: "StockSearch",
   description: "ユーザーの入力を部品在庫検索用URLに変換して結果を返す",
   parameters: z.object({
     品番: z.string().optional().describe("parts ID"),
@@ -88,9 +114,18 @@ server.addTool({
     型式: z.string().optional().describe(
       "parts model name, alphabet or number",
     ),
-    orderby: z.string().optional().describe("sort by selected row"),
+    備考: z.string().optional().describe("仕様書番号"),
+    select: z.enum(SELECTABLE_STOCK_FIELD)
+      .optional().array().describe(
+        `Set the key to be displayed in JSON as the value of select.
+  Select the minimum number of columns necessary. `,
+      ),
+    orderby: z.enum(SELECTABLE_STOCK_FIELD).optional().describe(
+      "sort by selected row, select just only one",
+    ),
     limit: z.number().optional().describe("result max number"),
     asc: z.boolean().optional().describe("sort order ascending"),
+    distinct: z.boolean().optional().describe("Do not show duplicate results"),
   }),
   execute: async (params) => {
     // URL構築
@@ -99,30 +134,34 @@ server.addTool({
     if (params.品番) url.searchParams.set("品番", params.品番);
     if (params.品名) url.searchParams.set("品名", params.品名);
     if (params.型式) url.searchParams.set("型式", params.型式);
+    if (params.備考) url.searchParams.set("備考", params.備考);
     // 表示列
-    url.searchParams.set("select", "品番");
-    url.searchParams.append("select", "品名");
-    url.searchParams.append("select", "型式");
-    url.searchParams.append("select", "在庫数");
-    url.searchParams.append("select", "単位");
+    url.searchParams.set("select", "品番"); // 品番は必須
+    SELECTABLE_STOCK_FIELD.forEach((field) => { // その他のフィールドは
+      if (params.select.includes(field)) { // paramsにあれば適宜追加
+        url.searchParams.append("select", field);
+      }
+    });
     // ソート列
     url.searchParams.set("orderby", params.orderby ?? "品番"); // orderby は必須
-    if (params.limit) {
-      url.searchParams.set("limit", params.limit.toString() ?? "100");
-    }
-    if (params.asc) {
-      url.searchParams.set("asc", params.asc.toString() ?? "false");
-    }
+    url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
+    url.searchParams.set("asc", String(params.asc ?? DEFAULT_ASC));
+    // 重複非表示(デフォルトはすべて表示)
+    url.searchParams.set(
+      "distinct",
+      String(params.distinct ?? DEFAULT_DISTINCT),
+    );
     console.error("URL:", url);
-    // fetchした結果を返す
+
+    // fetchした結果をコーディングエージェントに返す
     const json = await fetchPNSearch(url, { timeout: 100000, retries: 3 });
-    return JSON.stringify(json);
+    return JSON.stringify(json, null, 2);
   },
 });
 
 // 発注検索
 server.addTool({
-  name: "History Search",
+  name: "HistorySearch",
   description: "ユーザーの入力を部品発注履歴検索用URLに変換して結果を返す",
   parameters: z.object({
     製番: z.string().optional().describe("project ID"),
@@ -155,16 +194,21 @@ server.addTool({
     url.searchParams.append("select", "発注納期");
     // ソート列
     url.searchParams.set("orderby", params.orderby ?? "製番"); // orderby は必須
-    url.searchParams.set("limit", String(params.limit ?? 50));
-    url.searchParams.set("asc", String(params.asc ?? false));
+    url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
+    url.searchParams.set("asc", String(params.asc ?? DEFAULT_ASC));
+    // 重複非表示(デフォルトはすべて表示)
+    url.searchParams.set(
+      "distinct",
+      String(params.distinct ?? DEFAULT_DISTINCT),
+    );
     console.error("URL:", url);
-    // return JSON.stringify({ result: result.toString() });
 
-    // fetchした結果を返す
+    // fetchした結果をコーディングエージェントに返す
     const json = await fetchPNSearch(url, { timeout: 100000, retries: 3 });
-    return JSON.stringify(json);
+    return JSON.stringify(json, null, 2);
   },
 });
+
 // MAIN
 server.start({ transportType: "stdio" });
-// console.error("MCP server running on stdio");
+console.error("MCP server running on stdio");
