@@ -27,8 +27,8 @@ const server = new FastMCP({
   version: "0.1.0",
 });
 
-// const BASEURL = "http://localhost:8080/api/v1";
-const BASEURL = "http://192.168.10.108:8080/api/v1";
+const BASEURL = Deno.env.get("PNSEARCH_BASE") || "http://localhost:8080";
+const APIV1 = BASEURL + "/api/v1";
 const DEFAULT_LIMIT = 50;
 const DEFAULT_ASC = false;
 const DEFAULT_DISTINCT = false;
@@ -41,6 +41,42 @@ const SELECTABLE_STOCK_FIELD = [
   "単位",
   "在庫単価",
   "備考",
+] as const;
+
+const SELECTABLE_HISTORY_FIELD = [
+  "製番",
+  "製番枝番",
+  "工事名称",
+  "部品表行番号",
+  "レベル",
+  "出庫指示番号",
+  "品番",
+  "品名",
+  "型式",
+  "手配数量",
+  "出庫数量",
+  "受入数量",
+  "発注数量",
+  "原価計上数量",
+  "単位",
+  "部品表作成日",
+  "手配納期",
+  "出庫処理日",
+  "受入日",
+  "発注納期",
+  "仕入先",
+  "発注単価",
+  "原価計上単価",
+  "発注額",
+  "原価計上額",
+  "装置名",
+  "号機",
+  "メーカ",
+  "備考",
+  "発注処理者",
+  "発注番号",
+  "検区",
+  "諸口品",
 ] as const;
 
 interface FetchResult {
@@ -109,12 +145,14 @@ server.addTool({
   name: "StockSearch",
   description: "ユーザーの入力を部品在庫検索用URLに変換して結果を返す",
   parameters: z.object({
-    品番: z.string().optional().describe("parts ID"),
-    品名: z.string().optional().describe("parts name, Japanese name"),
+    品番: z.string().optional().describe("Parts ID"),
+    品名: z.string().optional().describe("Parts name, Japanese name"),
     型式: z.string().optional().describe(
-      "parts model name, alphabet or number",
+      "Parts model name, alphabet or number",
     ),
-    備考: z.string().optional().describe("仕様書番号"),
+    備考: z.string().optional().describe(
+      "Specification No like TB-12-A-034-001",
+    ),
     select: z.enum(SELECTABLE_STOCK_FIELD)
       .optional().array().describe(
         `Set the key to be displayed in JSON as the value of select.
@@ -129,7 +167,7 @@ server.addTool({
   }),
   execute: async (params) => {
     // URL構築
-    const url = new URL(`${BASEURL}/filter/stock`);
+    const url = new URL(`${APIV1}/filter/stock`);
     // 検索キーワード
     if (params.品番) url.searchParams.set("品番", params.品番);
     if (params.品名) url.searchParams.set("品名", params.品名);
@@ -163,23 +201,38 @@ server.addTool({
   name: "HistorySearch",
   description: "ユーザーの入力を部品発注履歴検索用URLに変換して結果を返す",
   parameters: z.object({
-    製番: z.string().optional().describe("project ID"),
-    製番名称: z.string().optional().describe("project name"),
-    品番: z.string().optional().describe("parts ID"),
-    品名: z.string().optional().describe("parts name, Japanese name"),
+    製番: z.string().optional().describe("Project ID"),
+    工事名称: z.string().optional().describe("Project name"),
+    出庫指示番号: z.string().optional().describe("Order ID"),
+    品番: z.string().optional().describe("Parts ID"),
+    品名: z.string().optional().describe("Parts name, Japanese name"),
     型式: z.string().optional().describe(
-      "parts model name, alphabet or number",
+      "Parts model name, alphabet or number",
     ),
-    orderby: z.string().describe("sort by selected row"),
+    装置名: z.string().optional().describe("Device ID"),
+    号機: z.string().optional().describe(
+      "Serial ID for client.Alphabetical 3-digit",
+    ),
+    メーカ: z.string().optional().describe("Maker name"),
+    仕入先: z.string().optional().describe("Vendor name"),
+    select: z.enum(SELECTABLE_HISTORY_FIELD)
+      .optional().array().describe(
+        `Set the key to be displayed in JSON as the value of select.
+  Select the minimum number of columns necessary. `,
+      ),
+    orderby: z.enum(SELECTABLE_HISTORY_FIELD).describe(
+      "sort by selected row, select just only one",
+    ),
     limit: z.number().optional().describe("result max number"),
     asc: z.boolean().optional().describe("sort order ascending"),
+    distinct: z.boolean().optional().describe("Do not show duplicate results"),
   }),
   execute: async (params) => {
     // URL構築
-    const url = new URL(`${BASEURL}/filter/history`);
+    const url = new URL(`${APIV1}/filter/history`);
     // 検索キーワード
     if (params.製番) url.searchParams.set("製番", params.製番);
-    if (params.製番名称) url.searchParams.set("製番名称", params.製番名称);
+    if (params.工事名称) url.searchParams.set("工事名称", params.工事名称);
     if (params.品番) url.searchParams.set("品番", params.品番);
     if (params.品名) url.searchParams.set("品名", params.品名);
     if (params.型式) url.searchParams.set("型式", params.型式);
