@@ -17,8 +17,9 @@ export const StockSearchSchema = z.object({
       `Set the key to be displayed in JSON as the value of select.
 Select the minimum number of columns necessary. `,
     ),
-  orderby: z.enum(SELECTABLE_STOCK_FIELD).describe(
-    "sort by selected row, select just only one",
+  orderby: z.enum(SELECTABLE_STOCK_FIELD).optional().describe(
+    // build*SearchUrl()でselectの中から強制的に選ばせるのであえてoptional
+    "sort by selected row, you MUST select just only one",
   ),
   limit: z.number().optional().describe("result max number"),
   asc: z.boolean().optional().describe("sort order ascending"),
@@ -27,7 +28,9 @@ Select the minimum number of columns necessary. `,
 
 export const HistorySearchSchema = z.object({
   製番: z.string().optional().describe("Project ID"),
-  工事名称: z.string().optional().describe("Project name"),
+  工事名称: z.string().optional().describe(
+    "Project name, another name '製番名称'",
+  ),
   出庫指示番号: z.string().optional().describe("Order ID"),
   品番: z.string().optional().describe("Parts ID"),
   品名: z.string().optional().describe("Parts name, Japanese name"),
@@ -44,8 +47,9 @@ export const HistorySearchSchema = z.object({
       `Set the key to be displayed in JSON as the value of select.
 Select the minimum number of columns necessary. `,
     ),
-  orderby: z.enum(SELECTABLE_HISTORY_FIELD).describe(
-    "sort by selected row, select just only one",
+  orderby: z.enum(SELECTABLE_HISTORY_FIELD).optional().describe(
+    // build*SearchUrl()でselectの中から強制的に選ばせるのであえてoptional
+    "sort by selected row, you MUST select just only one",
   ),
   limit: z.number().optional().describe("result max number"),
   asc: z.boolean().optional().describe("sort order ascending"),
@@ -62,8 +66,9 @@ export const ProjectSearchSchema = z.object({
       `Set the key to be displayed in JSON as the value of select.
 Select the minimum number of columns necessary. `,
     ),
-  orderby: z.enum(SELECTABLE_PROJECT_FIELD).describe(
-    "sort by selected row, select just only one",
+  orderby: z.enum(SELECTABLE_PROJECT_FIELD).optional().describe(
+    // build*SearchUrl()でselectの中から強制的に選ばせるのであえてoptional
+    "sort by selected row, you MUST select just only one",
   ),
   limit: z.number().optional().describe("result max number"),
   asc: z.boolean().optional().describe("sort order ascending"),
@@ -73,6 +78,7 @@ Select the minimum number of columns necessary. `,
 // 型定義
 export type StockField = typeof SELECTABLE_STOCK_FIELD[number];
 export type HistoryField = typeof SELECTABLE_HISTORY_FIELD[number];
+export type ProjectField = typeof SELECTABLE_PROJECT_FIELD[number];
 export type StockSearchParams = z.infer<typeof StockSearchSchema>;
 export type HistorySearchParams = z.infer<typeof HistorySearchSchema>;
 export type ProjectSearchParams = z.infer<typeof ProjectSearchSchema>;

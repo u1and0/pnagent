@@ -6,8 +6,11 @@ import {
   buildStockSearchUrl,
 } from "../utils/urlBuilder.ts";
 import type {
+  HistoryField,
   HistorySearchParams,
+  ProjectField,
   ProjectSearchParams,
+  StockField,
   StockSearchParams,
 } from "../utils/types.ts";
 import {
@@ -38,7 +41,7 @@ export class HistorySearchTool extends SearchTool<typeof HistorySearchSchema> {
   description = "ユーザーの入力を部品発注履歴検索用URLに変換して結果を返す";
   parameters = HistorySearchSchema;
 
-  protected getDefaultSelect(): string[] {
+  protected getDefaultSelect(): HistoryField[] {
     return ["製番", "品番"];
   }
 
@@ -52,7 +55,7 @@ export class StockSearchTool extends SearchTool<typeof StockSearchSchema> {
   description = "ユーザーの入力を部品在庫検索用URLに変換して結果を返す";
   parameters = StockSearchSchema;
 
-  protected getDefaultSelect(): string[] {
+  protected getDefaultSelect(): StockField[] {
     return ["品番"];
   }
 
@@ -66,7 +69,7 @@ export class ProjectSearchTool extends SearchTool<typeof ProjectSearchSchema> {
   description = "ユーザーの入力を製番検索用URLに変換して結果を返す";
   parameters = ProjectSearchSchema;
 
-  protected getDefaultSelect(): string[] {
+  protected getDefaultSelect(): ProjectField[] {
     return ["製番"];
   }
 

@@ -8,20 +8,30 @@ import {
   SEARCHABLE_STOCK_FIELD,
 } from "./constants.ts";
 import type {
+  HistoryField,
   HistorySearchParams,
+  ProjectField,
   ProjectSearchParams,
+  StockField,
   StockSearchParams,
 } from "./types.ts";
 
 export function buildStockSearchUrl(
   params: StockSearchParams,
-  defaultSelect: string[],
+  defaultSelect: StockField[],
 ): URL {
   const url = new URL(`${APIV1}/filter/stock`);
   addSearchParams(url, params, SEARCHABLE_STOCK_FIELD);
-  addSelectParams(url, params.select, defaultSelect);
 
-  url.searchParams.set("orderby", params.orderby ?? "品番");
+  const fieldsToSelect = params.select && params.select.length > 0
+    ? params.select
+    : defaultSelect;
+  addSelectParams(url, fieldsToSelect);
+
+  // orderbyは必ず含める必要がある。
+  // selectで選ばれたものの中から選ばれなければならない
+  // defaultSelectによりparams.selectは必ず一個以上の要素がある
+  url.searchParams.set("orderby", params.orderby ?? fieldsToSelect[0]);
   url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
   url.searchParams.set("asc", String(params.asc ?? DEFAULT_ASC));
   url.searchParams.set("distinct", String(params.distinct ?? DEFAULT_DISTINCT));
@@ -31,13 +41,20 @@ export function buildStockSearchUrl(
 
 export function buildHistorySearchUrl(
   params: HistorySearchParams,
-  defaultSelect: string[],
+  defaultSelect: HistoryField[],
 ): URL {
   const url = new URL(`${APIV1}/filter/history`);
   addSearchParams(url, params, SEARCHABLE_HISTORY_FIELD);
-  addSelectParams(url, params.select, defaultSelect);
 
-  url.searchParams.set("orderby", params.orderby ?? "製番");
+  const fieldsToSelect = params.select && params.select.length > 0
+    ? params.select
+    : defaultSelect;
+  addSelectParams(url, fieldsToSelect);
+
+  // orderbyは必ず含める必要がある。
+  // selectで選ばれたものの中から選ばれなければならない
+  // defaultSelectによりparams.selectは必ず一個以上の要素がある
+  url.searchParams.set("orderby", params.orderby ?? fieldsToSelect[0]);
   url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
   url.searchParams.set("asc", String(params.asc ?? DEFAULT_ASC));
   url.searchParams.set("distinct", String(params.distinct ?? DEFAULT_DISTINCT));
@@ -47,13 +64,20 @@ export function buildHistorySearchUrl(
 
 export function buildProjectSearchUrl(
   params: ProjectSearchParams,
-  defaultSelect: string[],
+  defaultSelect: ProjectField[],
 ): URL {
   const url = new URL(`${APIV1}/filter/project`);
   addSearchParams(url, params, SEARCHABLE_PROJECT_FIELD);
-  addSelectParams(url, params.select, defaultSelect);
 
-  url.searchParams.set("orderby", params.orderby ?? "製番");
+  const fieldsToSelect = params.select && params.select.length > 0
+    ? params.select
+    : defaultSelect;
+  addSelectParams(url, fieldsToSelect);
+
+  // orderbyは必ず含める必要がある。
+  // selectで選ばれたものの中から選ばれなければならない
+  // defaultSelectによりparams.selectは必ず一個以上の要素がある
+  url.searchParams.set("orderby", params.orderby ?? fieldsToSelect[0]);
   url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
   url.searchParams.set("asc", String(params.asc ?? DEFAULT_ASC));
   url.searchParams.set("distinct", String(params.distinct ?? DEFAULT_DISTINCT));
@@ -87,16 +111,9 @@ function addSearchParams(
  */
 function addSelectParams(
   url: URL,
-  select: string[] | undefined,
-  defaultSelect: string[],
+  selectFields: HistoryField[] | StockField[] | ProjectField[],
 ) {
-  const selectFields = new Set(defaultSelect);
-  if (select) {
-    select.forEach((field) => selectFields.add(field));
-  }
-
   selectFields.forEach((field) => {
     url.searchParams.append("select", field);
   });
 }
-
