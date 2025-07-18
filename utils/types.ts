@@ -17,7 +17,7 @@ export const StockSearchSchema = z.object({
       `Set the key to be displayed in JSON as the value of select.
 Select the minimum number of columns necessary. `,
     ),
-  orderby: z.enum(SELECTABLE_STOCK_FIELD).optional().describe(
+  orderby: z.enum(SELECTABLE_STOCK_FIELD).describe(
     "sort by selected row, select just only one",
   ),
   limit: z.number().optional().describe("result max number"),
@@ -44,7 +44,7 @@ export const HistorySearchSchema = z.object({
       `Set the key to be displayed in JSON as the value of select.
 Select the minimum number of columns necessary. `,
     ),
-  orderby: z.enum(SELECTABLE_HISTORY_FIELD).optional().describe(
+  orderby: z.enum(SELECTABLE_HISTORY_FIELD).describe(
     "sort by selected row, select just only one",
   ),
   limit: z.number().optional().describe("result max number"),
@@ -62,7 +62,7 @@ export const ProjectSearchSchema = z.object({
       `Set the key to be displayed in JSON as the value of select.
 Select the minimum number of columns necessary. `,
     ),
-  orderby: z.enum(SELECTABLE_PROJECT_FIELD).optional().describe(
+  orderby: z.enum(SELECTABLE_PROJECT_FIELD).describe(
     "sort by selected row, select just only one",
   ),
   limit: z.number().optional().describe("result max number"),
