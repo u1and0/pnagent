@@ -1,4 +1,4 @@
-import type { FetchOptions, FetchResult } from "./types.ts";
+import type { FetchOptions, FetchResult } from "../utils/types.ts";
 
 async function fetchWithTimeout(url: URL, timeout: number): Promise<Response> {
   const controller = new AbortController();

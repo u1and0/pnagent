@@ -1,6 +1,6 @@
 import { FastMCP } from "npm:fastmcp@1.20.5";
-import { HistorySearchTool, StockSearchTool } from "./tools.ts";
-import { fetchPNSearch } from "./utils/fetcher.ts";
+import { HistorySearchTool, StockSearchTool } from "./core/tools.ts";
+import { fetchPNSearch } from "./core/fetcher.ts";
 
 // fetchPNSearchをbaseTool.tsから使えるようにエクスポートしておく
 // baseToolで循環参照が起きないようにするため

@@ -1,11 +1,11 @@
 import type { ZodObject } from "npm:zod@3.24.2";
-import { fetchPNSearch } from "./utils/fetcher.ts";
+import { fetchPNSearch } from "./fetcher.ts";
 import {
   buildHistorySearchUrl,
   buildStockSearchUrl,
-} from "./utils/urlBuilder.ts";
-import type { HistorySearchParams, StockSearchParams } from "./utils/types.ts";
-import { HistorySearchSchema, StockSearchSchema } from "./utils/types.ts";
+} from "../utils/urlBuilder.ts";
+import type { HistorySearchParams, StockSearchParams } from "../utils/types.ts";
+import { HistorySearchSchema, StockSearchSchema } from "../utils/types.ts";
 
 abstract class SearchTool<T extends ZodObject<any>> {
   abstract name: string;
