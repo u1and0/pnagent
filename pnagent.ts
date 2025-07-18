@@ -104,7 +104,7 @@ async function fetchPNSearch(
     });
     clearTimeout(timeoutID);
     // reponse NG
-    if (!response.ok) {
+    if (response.status === 204 || !response.ok) {
       const errorMessage = `HTTP ${response.status}: ${response.statusText}`;
       return { url: decodedURL, result: errorMessage };
     }
