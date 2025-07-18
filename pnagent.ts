@@ -23,7 +23,7 @@ import { FastMCP } from "npm:fastmcp@1.20.5";
 import { z } from "npm:zod@3.24.2";
 
 const server = new FastMCP({
-  name: "Search PNSearch for parts information",
+  name: "PNAgent",
   version: "0.1.0",
 });
 
