@@ -4,8 +4,8 @@ import {
   buildHistorySearchUrl,
   buildStockSearchUrl,
 } from "./utils/urlBuilder.ts";
-import type { HistorySearchParams, StockSearchParams } from "./types.ts";
-import { HistorySearchSchema, StockSearchSchema } from "./types.ts";
+import type { HistorySearchParams, StockSearchParams } from "./utils/types.ts";
+import { HistorySearchSchema, StockSearchSchema } from "./utils/types.ts";
 
 abstract class SearchTool<T extends ZodObject<any>> {
   abstract name: string;

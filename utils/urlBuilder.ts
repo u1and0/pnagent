@@ -5,8 +5,8 @@ import {
   DEFAULT_LIMIT,
   SEARCHABLE_HISTORY_FIELD,
   SEARCHABLE_STOCK_FIELD,
-} from "../constants.ts";
-import type { HistorySearchParams, StockSearchParams } from "../types.ts";
+} from "./constants.ts";
+import type { HistorySearchParams, StockSearchParams } from "./types.ts";
 
 export function buildStockSearchUrl(
   params: StockSearchParams,
