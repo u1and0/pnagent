@@ -25,7 +25,6 @@ abstract class SearchTool<T extends ZodObject<any>> {
   abstract parameters: T;
 
   protected abstract buildUrl(params: T["_input"]): URL;
-  protected abstract getDefaultSelect(): string[];
 
   async execute(params: T["_input"]): Promise<string> {
     const url = this.buildUrl(params);
@@ -40,13 +39,10 @@ export class HistorySearchTool extends SearchTool<typeof HistorySearchSchema> {
   name = "HistorySearch";
   description = "ユーザーの入力を部品発注履歴検索用URLに変換して結果を返す";
   parameters = HistorySearchSchema;
-
-  protected getDefaultSelect(): HistoryField[] {
-    return ["製番", "品番"];
-  }
+  protected readonly defaultSelect: HistoryField[] = ["製番", "品番"];
 
   protected buildUrl(params: HistorySearchParams): URL {
-    return buildHistorySearchUrl(params, this.getDefaultSelect());
+    return buildHistorySearchUrl(params, this.defaultSelect);
   }
 }
 
@@ -54,13 +50,10 @@ export class StockSearchTool extends SearchTool<typeof StockSearchSchema> {
   name = "StockSearch";
   description = "ユーザーの入力を部品在庫検索用URLに変換して結果を返す";
   parameters = StockSearchSchema;
-
-  protected getDefaultSelect(): StockField[] {
-    return ["品番"];
-  }
+  protected readonly defaultSelect: StockField[] = ["品番"];
 
   protected buildUrl(params: StockSearchParams): URL {
-    return buildStockSearchUrl(params, this.getDefaultSelect());
+    return buildStockSearchUrl(params, this.defaultSelect);
   }
 }
 
@@ -68,12 +61,9 @@ export class ProjectSearchTool extends SearchTool<typeof ProjectSearchSchema> {
   name = "ProjectSearch";
   description = "ユーザーの入力を製番検索用URLに変換して結果を返す";
   parameters = ProjectSearchSchema;
-
-  protected getDefaultSelect(): ProjectField[] {
-    return ["製番"];
-  }
+  protected readonly defaultSelect: ProjectField[] = ["製番"];
 
   protected buildUrl(params: ProjectSearchParams): URL {
-    return buildProjectSearchUrl(params, this.getDefaultSelect());
+    return buildProjectSearchUrl(params, this.defaultSelect);
   }
 }
