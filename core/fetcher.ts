@@ -57,16 +57,30 @@ export async function fetchPNSearch<T = any>(
   try {
     const response = await fetchWithTimeout(url, timeout);
 
-    if (!response.ok || response.status === 204) {
+    // Handle 204 No Content separately, as it has no body.
+    if (response.status === 204) {
       return {
         url: decodedURL,
-        result: `HTTP ${response.status}: ${response.statusText}`,
-        success: false,
+        result: "HTTP 204: No Content",
+        success: response.ok,
       };
     }
 
-    const jsonResult = await response.json();
-    return { url: decodedURL, result: jsonResult, success: true };
+    const responseText = await response.text();
+    // For all other responses, try to parse the JSON body.
+    try {
+      const jsonResult = JSON.parse(responseText);
+      return { url: decodedURL, result: jsonResult, success: response.ok };
+    } catch (error) {
+      // This will catch errors if the response is not valid JSON.
+      console.error("Failed to parse JSON:", error);
+      return {
+        url: decodedURL,
+        result:
+          `HTTP ${response.status}: ${response.statusText}. Failed to parse response as JSON. Body: ${responseText}`,
+        success: false, // It's a failure if we expected JSON and didn't get it.
+      };
+    }
   } catch (error) {
     return await handleFetchError(error, decodedURL, url, {
       ...options,
