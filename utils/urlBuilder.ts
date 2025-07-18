@@ -4,9 +4,14 @@ import {
   DEFAULT_DISTINCT,
   DEFAULT_LIMIT,
   SEARCHABLE_HISTORY_FIELD,
+  SEARCHABLE_PROJECT_FIELD,
   SEARCHABLE_STOCK_FIELD,
 } from "./constants.ts";
-import type { HistorySearchParams, StockSearchParams } from "./types.ts";
+import type {
+  HistorySearchParams,
+  ProjectSearchParams,
+  StockSearchParams,
+} from "./types.ts";
 
 export function buildStockSearchUrl(
   params: StockSearchParams,
@@ -30,6 +35,22 @@ export function buildHistorySearchUrl(
 ): URL {
   const url = new URL(`${APIV1}/filter/history`);
   addSearchParams(url, params, SEARCHABLE_HISTORY_FIELD);
+  addSelectParams(url, params.select, defaultSelect);
+
+  url.searchParams.set("orderby", params.orderby ?? "製番");
+  url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
+  url.searchParams.set("asc", String(params.asc ?? DEFAULT_ASC));
+  url.searchParams.set("distinct", String(params.distinct ?? DEFAULT_DISTINCT));
+
+  return url;
+}
+
+export function buildProjectSearchUrl(
+  params: ProjectSearchParams,
+  defaultSelect: string[],
+): URL {
+  const url = new URL(`${APIV1}/filter/project`);
+  addSearchParams(url, params, SEARCHABLE_PROJECT_FIELD);
   addSelectParams(url, params.select, defaultSelect);
 
   url.searchParams.set("orderby", params.orderby ?? "製番");
@@ -78,3 +99,4 @@ function addSelectParams(
     url.searchParams.append("select", field);
   });
 }
+

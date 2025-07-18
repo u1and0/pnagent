@@ -1,5 +1,9 @@
 import { FastMCP } from "npm:fastmcp@1.20.5";
-import { HistorySearchTool, StockSearchTool } from "./core/tools.ts";
+import {
+  HistorySearchTool,
+  ProjectSearchTool,
+  StockSearchTool,
+} from "./core/tools.ts";
 import { fetchPNSearch } from "./core/fetcher.ts";
 
 // fetchPNSearchをbaseTool.tsから使えるようにエクスポートしておく
@@ -14,9 +18,11 @@ const server = new FastMCP({
 // Tools
 const stockSearchTool = new StockSearchTool();
 const historySearchTool = new HistorySearchTool();
+const projectSearchTool = new ProjectSearchTool();
 
 server.addTool(stockSearchTool);
 server.addTool(historySearchTool);
+server.addTool(projectSearchTool);
 
 // MAIN
 server.start({ transportType: "stdio" });

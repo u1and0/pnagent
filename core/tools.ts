@@ -2,10 +2,19 @@ import type { ZodObject } from "npm:zod@3.24.2";
 import { fetchPNSearch } from "./fetcher.ts";
 import {
   buildHistorySearchUrl,
+  buildProjectSearchUrl,
   buildStockSearchUrl,
 } from "../utils/urlBuilder.ts";
-import type { HistorySearchParams, StockSearchParams } from "../utils/types.ts";
-import { HistorySearchSchema, StockSearchSchema } from "../utils/types.ts";
+import type {
+  HistorySearchParams,
+  ProjectSearchParams,
+  StockSearchParams,
+} from "../utils/types.ts";
+import {
+  HistorySearchSchema,
+  ProjectSearchSchema,
+  StockSearchSchema,
+} from "../utils/types.ts";
 
 abstract class SearchTool<T extends ZodObject<any>> {
   abstract name: string;
@@ -30,15 +39,7 @@ export class HistorySearchTool extends SearchTool<typeof HistorySearchSchema> {
   parameters = HistorySearchSchema;
 
   protected getDefaultSelect(): string[] {
-    return [
-      "製番",
-      "品番",
-      "品名",
-      "型式",
-      "手配数量",
-      "単位",
-      "発注納期",
-    ];
+    return ["製番", "工事名称", "品番", "品名", "型式"];
   }
 
   protected buildUrl(params: HistorySearchParams): URL {
@@ -57,5 +58,19 @@ export class StockSearchTool extends SearchTool<typeof StockSearchSchema> {
 
   protected buildUrl(params: StockSearchParams): URL {
     return buildStockSearchUrl(params, this.getDefaultSelect());
+  }
+}
+
+export class ProjectSearchTool extends SearchTool<typeof ProjectSearchSchema> {
+  name = "ProjectSearch";
+  description = "ユーザーの入力を製番検索用URLに変換して結果を返す";
+  parameters = ProjectSearchSchema;
+
+  protected getDefaultSelect(): string[] {
+    return ["製番", "製番名称", "受注・試作番号", "納期"];
+  }
+
+  protected buildUrl(params: ProjectSearchParams): URL {
+    return buildProjectSearchUrl(params, this.getDefaultSelect());
   }
 }
