@@ -1,6 +1,5 @@
 import { FastMCP } from "npm:fastmcp@1.20.5";
-import { HistorySearchTool } from "./tools/historySearch.ts";
-import { StockSearchTool } from "./tools/stockSearch.ts";
+import { HistorySearchTool, StockSearchTool } from "./tools.ts";
 import { fetchPNSearch } from "./utils/fetcher.ts";
 
 // fetchPNSearchをbaseTool.tsから使えるようにエクスポートしておく
@@ -9,7 +8,7 @@ export { fetchPNSearch };
 
 const server = new FastMCP({
   name: "PNAgent",
-  version: "0.2.0", // refactored version
+  version: "0.1.1",
 });
 
 // Tools
