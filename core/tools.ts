@@ -39,7 +39,7 @@ export class HistorySearchTool extends SearchTool<typeof HistorySearchSchema> {
   parameters = HistorySearchSchema;
 
   protected getDefaultSelect(): string[] {
-    return ["製番", "工事名称", "品番", "品名", "型式"];
+    return ["製番", "品番"];
   }
 
   protected buildUrl(params: HistorySearchParams): URL {
@@ -53,7 +53,7 @@ export class StockSearchTool extends SearchTool<typeof StockSearchSchema> {
   parameters = StockSearchSchema;
 
   protected getDefaultSelect(): string[] {
-    return ["品番", "品名", "型式", "在庫数", "在庫単価"];
+    return ["品番"];
   }
 
   protected buildUrl(params: StockSearchParams): URL {
@@ -67,7 +67,7 @@ export class ProjectSearchTool extends SearchTool<typeof ProjectSearchSchema> {
   parameters = ProjectSearchSchema;
 
   protected getDefaultSelect(): string[] {
-    return ["製番", "製番名称", "受注・試作番号", "納期"];
+    return ["製番"];
   }
 
   protected buildUrl(params: ProjectSearchParams): URL {
