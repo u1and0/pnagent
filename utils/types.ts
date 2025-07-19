@@ -7,7 +7,7 @@ import {
 
 // Zod スキーマ
 export const StockSearchSchema = z.object({
-  品番: z.string().optional().describe("Parts ID"),
+  品番: z.string().optional().describe("Parts ID, 3-digit alpabet - numbers"),
   品名: z.string().optional().describe("Parts name, Japanese name"),
   型式: z.string().optional().describe("Parts model name, alphabet or number"),
   備考: z.string().optional().describe("Specification No like TB-12-A-034-001"),
