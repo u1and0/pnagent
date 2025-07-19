@@ -1,22 +1,44 @@
+/* Tool で使用するURLを構築する関数 */
 import {
   APIV1,
   DEFAULT_ASC,
   DEFAULT_DISTINCT,
   DEFAULT_LIMIT,
   SEARCHABLE_HISTORY_FIELD,
+  SEARCHABLE_PROJECT_FIELD,
   SEARCHABLE_STOCK_FIELD,
 } from "./constants.ts";
-import type { HistorySearchParams, StockSearchParams } from "./types.ts";
+import type {
+  HistoryField,
+  HistorySearchParams,
+  ProjectField,
+  ProjectSearchParams,
+  StockField,
+  StockSearchParams,
+} from "./types.ts";
 
+/**
+ * 在庫検索APIのURLの構築
+ * @param params  zodに従うLLMが指定するパラメータ
+ * @param defaultSelect selectが一つも示されなかった場合のデフォルト値
+ * @return URL GETメソッドに使うURL
+ */
 export function buildStockSearchUrl(
   params: StockSearchParams,
-  defaultSelect: string[],
+  defaultSelect: StockField[],
 ): URL {
   const url = new URL(`${APIV1}/filter/stock`);
   addSearchParams(url, params, SEARCHABLE_STOCK_FIELD);
-  addSelectParams(url, params.select, defaultSelect);
 
-  url.searchParams.set("orderby", params.orderby ?? "品番");
+  const fieldsToSelect = params.select && params.select.length > 0
+    ? params.select
+    : defaultSelect;
+  addSelectParams(url, fieldsToSelect);
+
+  // orderbyは必ず含める必要がある。
+  // selectで選ばれたものの中から選ばれなければならない
+  // defaultSelectによりparams.selectは必ず一個以上の要素がある
+  url.searchParams.set("orderby", params.orderby ?? fieldsToSelect[0]);
   url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
   url.searchParams.set("asc", String(params.asc ?? DEFAULT_ASC));
   url.searchParams.set("distinct", String(params.distinct ?? DEFAULT_DISTINCT));
@@ -24,15 +46,57 @@ export function buildStockSearchUrl(
   return url;
 }
 
+/**
+ * 発注履歴検索APIのURLの構築
+ * @param params  zodに従うLLMが指定するパラメータ
+ * @param defaultSelect selectが一つも示されなかった場合のデフォルト値
+ * @return URL GETメソッドに使うURL
+ */
 export function buildHistorySearchUrl(
   params: HistorySearchParams,
-  defaultSelect: string[],
+  defaultSelect: HistoryField[],
 ): URL {
   const url = new URL(`${APIV1}/filter/history`);
   addSearchParams(url, params, SEARCHABLE_HISTORY_FIELD);
-  addSelectParams(url, params.select, defaultSelect);
 
-  url.searchParams.set("orderby", params.orderby ?? "製番");
+  const fieldsToSelect = params.select && params.select.length > 0
+    ? params.select
+    : defaultSelect;
+  addSelectParams(url, fieldsToSelect);
+
+  // orderbyは必ず含める必要がある。
+  // selectで選ばれたものの中から選ばれなければならない
+  // defaultSelectによりparams.selectは必ず一個以上の要素がある
+  url.searchParams.set("orderby", params.orderby ?? fieldsToSelect[0]);
+  url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
+  url.searchParams.set("asc", String(params.asc ?? DEFAULT_ASC));
+  url.searchParams.set("distinct", String(params.distinct ?? DEFAULT_DISTINCT));
+
+  return url;
+}
+
+/**
+ * 製番検索APIのURLの構築
+ * @param params  zodに従うLLMが指定するパラメータ
+ * @param defaultSelect selectが一つも示されなかった場合のデフォルト値
+ * @return URL GETメソッドに使うURL
+ */
+export function buildProjectSearchUrl(
+  params: ProjectSearchParams,
+  defaultSelect: ProjectField[],
+): URL {
+  const url = new URL(`${APIV1}/filter/project`);
+  addSearchParams(url, params, SEARCHABLE_PROJECT_FIELD);
+
+  const fieldsToSelect = params.select && params.select.length > 0
+    ? params.select
+    : defaultSelect;
+  addSelectParams(url, fieldsToSelect);
+
+  // orderbyは必ず含める必要がある。
+  // selectで選ばれたものの中から選ばれなければならない
+  // defaultSelectによりparams.selectは必ず一個以上の要素がある
+  url.searchParams.set("orderby", params.orderby ?? fieldsToSelect[0]);
   url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
   url.searchParams.set("asc", String(params.asc ?? DEFAULT_ASC));
   url.searchParams.set("distinct", String(params.distinct ?? DEFAULT_DISTINCT));
@@ -66,14 +130,8 @@ function addSearchParams(
  */
 function addSelectParams(
   url: URL,
-  select: string[] | undefined,
-  defaultSelect: string[],
+  selectFields: HistoryField[] | StockField[] | ProjectField[],
 ) {
-  const selectFields = new Set(defaultSelect);
-  if (select) {
-    select.forEach((field) => selectFields.add(field));
-  }
-
   selectFields.forEach((field) => {
     url.searchParams.append("select", field);
   });

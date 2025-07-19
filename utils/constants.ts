@@ -69,3 +69,18 @@ export const SEARCHABLE_HISTORY_FIELD = [
   "メーカ",
   "仕入先",
 ] as const;
+
+export const SELECTABLE_PROJECT_FIELD = [
+  "製番",
+  "製番枝番",
+  "製番名称",
+  "受注・試作番号",
+  "納期",
+  "備考",
+] as const;
+
+export const SEARCHABLE_PROJECT_FIELD = [
+  "製番",
+  "製番名称",
+  "受注・試作番号",
+] as const;
