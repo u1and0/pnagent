@@ -102,3 +102,74 @@ async function handleFetchError<T>(
   const message = error instanceof Error ? error.message : String(error);
   return { url: decodedURL, result: `Fetch error: ${message}`, success: false };
 }
+
+/**
+ * PNSearch APIエンドポイントへのPOSTメイン関数
+ * @param url POSTメソッドへのURL
+ * @param body POSTするJSONデータ
+ * @param options fetch用のオプションで、タイムアウトやリトライ回数など
+ * @returns Promise<FetchResult<T>> JSONを返す
+ */
+export async function postPNSearch<T = any>(
+  url: URL,
+  body: any,
+  options: FetchOptions = {},
+): Promise<FetchResult<T>> {
+  const { timeout = 10000 } = options;
+  const decodedURL = decodeURIComponent(url.toString());
+
+  try {
+    const response = await fetchWithTimeoutPost(url, body, timeout);
+
+    if (response.status === 204) {
+      return {
+        url: decodedURL,
+        result: "HTTP 204: No Content",
+        success: response.ok,
+      };
+    }
+
+    const responseText = await response.text();
+    try {
+      const jsonResult = JSON.parse(responseText);
+      return { url: decodedURL, result: jsonResult, success: response.ok };
+    } catch (error) {
+      console.error("Failed to parse JSON:", error);
+      return {
+        url: decodedURL,
+        result:
+          `HTTP ${response.status}: ${response.statusText}. Failed to parse response as JSON. Body: ${responseText}`,
+        success: false,
+      };
+    }
+  } catch (error) {
+    // POSTなのでリトライはしない
+    const message = error instanceof Error ? error.message : String(error);
+    return { url: decodedURL, result: `Fetch error: ${message}`, success: false };
+  }
+}
+
+/** タイムアウト付きPOST */
+async function fetchWithTimeoutPost(
+  url: URL,
+  body: any,
+  timeout: number,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}

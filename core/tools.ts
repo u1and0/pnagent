@@ -1,6 +1,6 @@
 /* pnagent.tsで使用される Tool の定義を書く*/
 import type { ZodObject } from "npm:zod@3.24.2";
-import { fetchPNSearch } from "./fetcher.ts";
+import { fetchPNSearch, postPNSearch } from "./fetcher.ts";
 import {
   buildHistorySearchUrl,
   buildProjectSearchUrl,
@@ -11,12 +11,14 @@ import type {
   HistorySearchParams,
   ProjectField,
   ProjectSearchParams,
+  RequestToolParams,
   StockField,
   StockSearchParams,
 } from "../utils/types.ts";
 import {
   HistorySearchSchema,
   ProjectSearchSchema,
+  RequestToolSchema,
   StockSearchSchema,
 } from "../utils/types.ts";
 
@@ -66,5 +68,25 @@ export class ProjectSearchTool extends SearchTool<typeof ProjectSearchSchema> {
 
   protected buildUrl(params: ProjectSearchParams): URL {
     return buildProjectSearchUrl(params, this.defaultSelect);
+  }
+}
+
+export class RequestTool extends SearchTool<typeof RequestToolSchema> {
+  name = "requestTool";
+  description =
+    "POSTリクエストを送信して正しい要求票の形式であることをPNSearchに確認してもらうツール";
+  parameters = RequestToolSchema;
+
+  protected buildUrl(_params: RequestToolParams): URL {
+    // POST requestなので、このメソッドは実際には使用されない
+    return new URL("");
+  }
+
+  override async execute(params: RequestToolParams): Promise<string> {
+    const url = this.buildUrl(params);
+    console.error("URL:", decodeURIComponent(url.toString()));
+
+    const json = await postPNSearch(url, params.sheet, { timeout: 100000 });
+    return JSON.stringify(json, null, 2);
   }
 }
