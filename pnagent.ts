@@ -1,3 +1,6 @@
+/** MCPサーバーの立ち上げ
+ * Toolの定義をserver.addTool()によって列挙する
+ */
 import { FastMCP } from "npm:fastmcp@1.20.5";
 import {
   HistorySearchTool,
