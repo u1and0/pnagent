@@ -1,18 +1,16 @@
+/** MCPサーバーの立ち上げ
+ * Toolの定義をserver.addTool()によって列挙する
+ */
 import { FastMCP } from "npm:fastmcp@1.20.5";
 import {
   HistorySearchTool,
   ProjectSearchTool,
   StockSearchTool,
 } from "./core/tools.ts";
-import { fetchPNSearch } from "./core/fetcher.ts";
-
-// fetchPNSearchをbaseTool.tsから使えるようにエクスポートしておく
-// baseToolで循環参照が起きないようにするため
-export { fetchPNSearch };
 
 const server = new FastMCP({
   name: "PNAgent",
-  version: "0.1.1",
+  version: "0.2.0",
 });
 
 // Tools

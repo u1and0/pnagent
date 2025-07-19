@@ -1,3 +1,4 @@
+/* Tool で使用するURLを構築する関数 */
 import {
   APIV1,
   DEFAULT_ASC,
@@ -16,6 +17,12 @@ import type {
   StockSearchParams,
 } from "./types.ts";
 
+/**
+ * 在庫検索APIのURLの構築
+ * @param params  zodに従うLLMが指定するパラメータ
+ * @param defaultSelect selectが一つも示されなかった場合のデフォルト値
+ * @return URL GETメソッドに使うURL
+ */
 export function buildStockSearchUrl(
   params: StockSearchParams,
   defaultSelect: StockField[],
@@ -39,6 +46,12 @@ export function buildStockSearchUrl(
   return url;
 }
 
+/**
+ * 発注履歴検索APIのURLの構築
+ * @param params  zodに従うLLMが指定するパラメータ
+ * @param defaultSelect selectが一つも示されなかった場合のデフォルト値
+ * @return URL GETメソッドに使うURL
+ */
 export function buildHistorySearchUrl(
   params: HistorySearchParams,
   defaultSelect: HistoryField[],
@@ -62,6 +75,12 @@ export function buildHistorySearchUrl(
   return url;
 }
 
+/**
+ * 製番検索APIのURLの構築
+ * @param params  zodに従うLLMが指定するパラメータ
+ * @param defaultSelect selectが一つも示されなかった場合のデフォルト値
+ * @return URL GETメソッドに使うURL
+ */
 export function buildProjectSearchUrl(
   params: ProjectSearchParams,
   defaultSelect: ProjectField[],

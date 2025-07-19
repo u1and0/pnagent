@@ -1,3 +1,4 @@
+/* pnagent.tsで使用される Tool の定義を書く*/
 import type { ZodObject } from "npm:zod@3.24.2";
 import { fetchPNSearch } from "./fetcher.ts";
 import {
