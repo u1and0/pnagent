@@ -4,7 +4,7 @@ import type {
   FetchResult,
   RequestToolParams,
 } from "../utils/types.ts";
-import { BASEURL } from "../utils/constants.ts";
+import { buildConfirmURL } from "../utils/urlBuilder.ts";
 
 /**
  * PNSearch APIエンドポイントへのfetchメイン関数
@@ -136,11 +136,14 @@ export async function postPNSearch<T = any>(
     const responseText = await response.text();
     try {
       const jsonResult = JSON.parse(responseText);
-      // confirm APIで取得できる、再度要求画面を開くためのハッシュ付きURL
-      const confirmURL = `${BASEURL}/index?hash=${jsonResult.sha256}`;
+      // シート確認用hashを含むURLを作成
+      const confirmURL = buildConfirmURL(jsonResult.sha256);
+      // シート要素を削除したjsonResultを作成
+      const { _sheet, ...filteredResult } = jsonResult;
+
       return {
-        url: confirmURL,
-        result: jsonResult,
+        url: confirmURL.toString(),
+        result: filteredResult,
         success: response.status < 400, // 400以上がエラー
       };
     } catch (error) {

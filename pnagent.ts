@@ -4,6 +4,7 @@
 import { FastMCP } from "npm:fastmcp@1.20.5";
 import {
   HistorySearchTool,
+  PartsMasterSearchTool,
   ProjectSearchTool,
   RequestTool,
   StockSearchTool,
@@ -18,11 +19,13 @@ const server = new FastMCP({
 const stockSearchTool = new StockSearchTool();
 const historySearchTool = new HistorySearchTool();
 const projectSearchTool = new ProjectSearchTool();
+const partsMasterSearchTool = new PartsMasterSearchTool();
 const requestTool = new RequestTool();
 
 server.addTool(stockSearchTool);
 server.addTool(historySearchTool);
 server.addTool(projectSearchTool);
+server.addTool(partsMasterSearchTool);
 server.addTool(requestTool);
 
 // MAIN

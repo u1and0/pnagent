@@ -3,6 +3,7 @@ import type { ZodObject } from "npm:zod@3.24.2";
 import { fetchPNSearch, postPNSearch } from "./fetcher.ts";
 import {
   buildHistorySearchUrl,
+  buildPartsMasterSearchUrl,
   buildProjectSearchUrl,
   buildRequestsUrl,
   buildStockSearchUrl,
@@ -10,15 +11,17 @@ import {
 import type {
   HistoryField,
   HistorySearchParams,
+  PartsMasterField,
+  PartsMasterSearchParams,
   ProjectField,
   ProjectSearchParams,
   RequestToolParams,
-  Sheet,
   StockField,
   StockSearchParams,
 } from "../utils/types.ts";
 import {
   HistorySearchSchema,
+  PartsMasterSearchSchema,
   ProjectSearchSchema,
   RequestToolSchema,
   StockSearchSchema,
@@ -59,6 +62,18 @@ export class StockSearchTool extends SearchTool<typeof StockSearchSchema> {
 
   protected buildUrl(params: StockSearchParams): URL {
     return buildStockSearchUrl(params, this.defaultSelect);
+  }
+}
+
+export class PartsMasterSearchTool
+  extends SearchTool<typeof PartsMasterSearchSchema> {
+  name = "PartsMasterSearch";
+  description = "ユーザーの入力を部品マスタ検索用URLに変換して結果を返す";
+  parameters = PartsMasterSearchSchema;
+  protected readonly defaultSelect: PartsMasterField[] = ["品番"];
+
+  protected buildUrl(params: PartsMasterSearchParams): URL {
+    return buildPartsMasterSearchUrl(params, this.defaultSelect);
   }
 }
 

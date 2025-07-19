@@ -14,11 +14,27 @@ export const SELECTABLE_STOCK_FIELD = [
   "備考",
 ] as const;
 
+export const SELECTABLE_PARTS_MASTER_FIELD = [
+  "品番",
+  "品名",
+  "型式",
+  "単位",
+  "検区",
+  "諸口品",
+  "メーカ",
+  "備考",
+] as const;
+
 export const SEARCHABLE_STOCK_FIELD = [
   "品番",
   "品名",
   "型式",
   "備考",
+] as const;
+
+export const SEARCHABLE_PARTS_MASTER_FIELD = [
+  ...SEARCHABLE_STOCK_FIELD,
+  "メーカ",
 ] as const;
 
 export const SELECTABLE_HISTORY_FIELD = [

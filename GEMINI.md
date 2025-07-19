@@ -26,12 +26,31 @@
 
 # ツールについて
 
+## Architecture
+
+The codebase follows a schema-first design with strong TypeScript types generated from Zod schemas:
+
+- `core/fetcher.ts` - HTTP client with timeout/retry logic for PNSearch API
+- `core/tools.ts` - MCP tool definitions using abstract base class pattern
+- `utils/types.ts` - Zod schemas and TypeScript type definitions
+- `utils/urlBuilder.ts` - URL construction utilities for different search types
+- `utils/constants.ts` - API endpoints, field mappings, and defaults
+
+### Four Main MCP Tools
+
+1. **StockSearchTool** - Parts inventory searches
+2. **HistorySearchTool** - Order history queries  
+3. **ProjectSearchTool** - Project/manufacturing number lookups
+4. **RequestTool** - POST requests for purchase order validation
+
+All search tools extend the abstract `SearchTool<T>` base class for consistent behavior.
+
 ## pnagentについて
 - pnagentはPNSearchエンドポイントへ問い合わせるためのURLを構築し、fetchしてJSONとして部品発注検索の情報を得るためのツールです。
 - selectパラメータを少なくとも１つ以上は選択しなければいけません。
 - orderbyパラメータは必ずselectパラメータの中から一つだけ選択しなければいけません。
 - README.mdを読んでも解決しない場合は、`**/*.ts`を検索してソースコードを確認することを許可します。pnagentはまだ実験段階なので、不具合が多数あります。
-- それでも解決しない場合は、ユーザーへ解決の糸口を探るか、許可された場合にのみpnagentのソースコードの改変を試みてください。
+- それでも解決しない場合は、ユーザーへ解決の糸口を尋ねるか、許可された場合にのみpnagentのソースコードの改変を試みてください。
 
 ## PNSearchについて
 - PNSearchは部品発注検索、在庫検索、製番(プロジェクト)検索機能などを持った、外部に構築されたRESTful APIサーバーです。
@@ -49,7 +68,7 @@
 
 ### requests/confirm API / 要求票作成ついて
 - このAPIへのリクエストはPOSTデータを送信します。
-- エラーが出た場合は、あなたがユーザーに確認を取り、PNSearchからのレスポンスがsuccess: trueとなるまで、レスポンスの内容に従って、POSTデータを修正し続ける必要があります。
+- エラーが出た場合は、あなたがユーザーに確認を取り、PNSearchからのレスポンスがsuccess: trueとなるまでレスポンスの内容に従ってPOSTデータを修正し続ける必要があります。
 - 警告を確認するのはユーザーの仕事で、あなたの仕事ではありません。success: trueとなればあなたの仕事は終了です。
 - ユーザーが最後に知りたいのはsha256が含まれたURLです。
 - このリクエストにおける製番とは、"製番"(12桁)と"製番枝番"(3桁) を併せた15桁です。大抵の枝番は"000"ですので、製番検索しても不明な場合は、製番の末尾に"000"をつけてください。
