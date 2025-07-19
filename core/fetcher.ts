@@ -1,5 +1,10 @@
 /* PNSearch エンドポイントへのfetch処理関連 */
-import type { FetchOptions, FetchResult } from "../utils/types.ts";
+import type {
+  FetchOptions,
+  FetchResult,
+  RequestToolParams,
+} from "../utils/types.ts";
+import { BASEURL } from "../utils/constants.ts";
 
 /**
  * PNSearch APIエンドポイントへのfetchメイン関数
@@ -112,18 +117,17 @@ async function handleFetchError<T>(
  */
 export async function postPNSearch<T = any>(
   url: URL,
-  body: any,
+  body: RequestToolParams,
   options: FetchOptions = {},
 ): Promise<FetchResult<T>> {
   const { timeout = 10000 } = options;
-  const decodedURL = decodeURIComponent(url.toString());
 
   try {
-    const response = await fetchWithTimeoutPost(url, body, timeout);
+    const response = await postWithTimeout(url, body, timeout);
 
     if (response.status === 204) {
       return {
-        url: decodedURL,
+        url: "",
         result: "HTTP 204: No Content",
         success: response.ok,
       };
@@ -132,11 +136,17 @@ export async function postPNSearch<T = any>(
     const responseText = await response.text();
     try {
       const jsonResult = JSON.parse(responseText);
-      return { url: decodedURL, result: jsonResult, success: response.ok };
+      // confirm APIで取得できる、再度要求画面を開くためのハッシュ付きURL
+      const confirmURL = `${BASEURL}/index?hash=${jsonResult.sha256}`;
+      return {
+        url: confirmURL,
+        result: jsonResult,
+        success: response.status < 400, // 400以上がエラー
+      };
     } catch (error) {
       console.error("Failed to parse JSON:", error);
       return {
-        url: decodedURL,
+        url: "",
         result:
           `HTTP ${response.status}: ${response.statusText}. Failed to parse response as JSON. Body: ${responseText}`,
         success: false,
@@ -145,14 +155,18 @@ export async function postPNSearch<T = any>(
   } catch (error) {
     // POSTなのでリトライはしない
     const message = error instanceof Error ? error.message : String(error);
-    return { url: decodedURL, result: `Fetch error: ${message}`, success: false };
+    return {
+      url: "",
+      result: `Fetch error: ${message}`,
+      success: false,
+    };
   }
 }
 
 /** タイムアウト付きPOST */
-async function fetchWithTimeoutPost(
+async function postWithTimeout(
   url: URL,
-  body: any,
+  body: RequestToolParams,
   timeout: number,
 ): Promise<Response> {
   const controller = new AbortController();

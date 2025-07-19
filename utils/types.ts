@@ -75,41 +75,38 @@ Select the minimum number of columns necessary. `,
   distinct: z.boolean().optional().describe("Do not show duplicate results"),
 });
 
+const RequestHeaderSchema = z.object({
+  発注区分: z.string(),
+  製番: z.string(),
+  製番名称: z.string(),
+  要求年月日: z.string(),
+  製番納期: z.string(),
+  ファイル名: z.string(),
+  要求元: z.string(),
+  備考: z.string(),
+});
+
+const RequestOrdersSchema = z.array(z.object({
+  Lv: z.number(),
+  品番: z.string(),
+  品名: z.string(),
+  型式: z.string(),
+  在庫数: z.number(),
+  数量: z.number(),
+  単位: z.string(),
+  要望納期: z.string(),
+  検区: z.string(),
+  装置名: z.string(),
+  号機: z.string(),
+  メーカ: z.string(),
+  要望先: z.string(),
+  予定単価: z.number(),
+  Price: z.number(),
+}));
+
 export const RequestToolSchema = z.object({
-  sheet: z.object({
-    config: z.object({
-      validatable: z.boolean(),
-      sortable: z.boolean(),
-      overridable: z.boolean(),
-    }),
-    header: z.object({
-      発注区分: z.string(),
-      製番: z.string(),
-      製番名称: z.string(),
-      要求年月日: z.string(),
-      製番納期: z.string(),
-      ファイル名: z.string(),
-      要求元: z.string(),
-      備考: z.string(),
-    }),
-    orders: z.array(z.object({
-      Lv: z.number(),
-      品番: z.string(),
-      品名: z.string(),
-      型式: z.string(),
-      在庫数: z.number(),
-      数量: z.number(),
-      単位: z.string(),
-      要望納期: z.string(),
-      検区: z.string(),
-      装置名: z.string(),
-      号機: z.string(),
-      メーカ: z.string(),
-      要望先: z.string(),
-      予定単価: z.number(),
-      Price: z.number(),
-    })),
-  }),
+  header: RequestHeaderSchema,
+  orders: RequestOrdersSchema,
 });
 
 // 型定義
@@ -130,4 +127,10 @@ export interface FetchResult<T = any> {
   url: string;
   result: T | string;
   success: boolean;
+}
+
+export interface Sheet {
+  config: Record<string, boolean>;
+  header: Record<string, string>;
+  body: Array<Record<string, string | number>>;
 }

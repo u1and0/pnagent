@@ -104,6 +104,10 @@ export function buildProjectSearchUrl(
   return url;
 }
 
+export function buildRequestsUrl(): URL {
+  return new URL(`${APIV1}/requests/confirm`);
+}
+
 /**
  * URLに検索パラメータを追加する
  * @param url URLオブジェクト

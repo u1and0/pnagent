@@ -4,6 +4,7 @@ import { fetchPNSearch, postPNSearch } from "./fetcher.ts";
 import {
   buildHistorySearchUrl,
   buildProjectSearchUrl,
+  buildRequestsUrl,
   buildStockSearchUrl,
 } from "../utils/urlBuilder.ts";
 import type {
@@ -12,6 +13,7 @@ import type {
   ProjectField,
   ProjectSearchParams,
   RequestToolParams,
+  Sheet,
   StockField,
   StockSearchParams,
 } from "../utils/types.ts";
@@ -78,15 +80,26 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
   parameters = RequestToolSchema;
 
   protected buildUrl(_params: RequestToolParams): URL {
-    // POST requestなので、このメソッドは実際には使用されない
-    return new URL("");
+    return buildRequestsUrl();
   }
 
   override async execute(params: RequestToolParams): Promise<string> {
     const url = this.buildUrl(params);
     console.error("URL:", decodeURIComponent(url.toString()));
 
-    const json = await postPNSearch(url, params.sheet, { timeout: 100000 });
+    const sheet = {
+      config: {
+        validatable: true,
+        sortable: true,
+        overridable: true,
+      },
+      header: params.header,
+      orders: params.orders,
+    };
+
+    const json = await postPNSearch(url, sheet as RequestToolParams, {
+      timeout: 100000,
+    });
     return JSON.stringify(json, null, 2);
   }
 }
