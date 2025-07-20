@@ -146,9 +146,9 @@ export function buildRequestsUrl(): URL {
  * 再度要求画面を開くためのハッシュ付きURLを作成する
  */
 export function buildConfirmURL(sha256: string): URL {
-  const url = new URL("/index", BASEURL);
+  const url = new URL("index", BASEURL);
   url.searchParams.set("hash", sha256);
-  url.hash = "requirements-tab";
+  url.hash = "requirement-tab";
   return url;
 }
 

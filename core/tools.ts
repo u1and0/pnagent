@@ -108,9 +108,35 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
         sortable: true,
         overridable: true,
       },
-      header: params.header,
-      orders: params.orders,
+      header: {
+        発注区分: params.header.発注区分,
+        製番: params.header.製番,
+        製番名称: params.header.製番名称 || "",
+        要求年月日: params.header.要求年月日,
+        製番納期: params.header.製番納期 || "",
+        ファイル名: params.header.ファイル名 || "testfile.xlsx",
+        要求元: params.header.要求元 || "特機技術部",
+        備考: params.header.備考 || "",
+      },
+      orders: params.orders.map((order) => ({
+        Lv: order.Lv || 2,
+        品番: order.品番.toUpperCase(),
+        品名: order.品名 || "",
+        型式: order.型式 || "",
+        在庫数: order.在庫数 || 0,
+        数量: order.数量,
+        単位: order.単位 || "",
+        要望納期: order.要望納期,
+        検区: order.検区 || "",
+        装置名: order.装置名 || "",
+        号機: order.号機,
+        メーカ: order.メーカ || "",
+        要望先: order.要望先 || "資材一任",
+        予定単価: order.予定単価,
+        金額: order.金額 || 0,
+      })),
     };
+    console.error("sheet:", sheet);
 
     const json = await postPNSearch(url, sheet as RequestToolParams, {
       timeout: 100000,

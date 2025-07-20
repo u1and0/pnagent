@@ -8,7 +8,9 @@ import {
 
 // Zod スキーマ
 export const PartsMasterSearchSchema = z.object({
-  品番: z.string().optional().describe("Parts ID, 3-digit alpabet - numbers"),
+  品番: z.string().describe(
+    "Parts ID, large case 3-digit alpabet with numbers or just only alphabet",
+  ),
   品名: z.string().optional().describe("Parts name, Japanese name"),
   型式: z.string().optional().describe("Parts model name, alphabet or number"),
   メーカ: z.string().optional().describe("Maker name"),
@@ -115,7 +117,7 @@ const RequestHeaderSchema = z.object({
 });
 
 const RequestOrdersSchema = z.array(z.object({
-  Lv: z.enum(["2", "3"]).describe("Default 2"),
+  Lv: z.number().describe("Default 2"),
   品番: z.string().describe("Parts ID"),
   品名: z.string().optional().describe(
     "PNSearch API will automatically correct it, so if you don't know, just leave it blank.",
