@@ -127,7 +127,7 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
         数量: order.数量,
         単位: order.単位 || "",
         要望納期: order.要望納期,
-        検区: order.検区 || "",
+        検区: order.検区 || "20",
         装置名: order.装置名 || "",
         号機: order.号機,
         メーカ: order.メーカ || "",
@@ -137,6 +137,7 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
       })),
     };
     console.error("sheet:", sheet);
+    Deno.writeTextFile("error.log", JSON.stringify(sheet), { append: true });
 
     const json = await postPNSearch(url, sheet, { timeout: 100000 });
     return JSON.stringify(json, null, 2);
