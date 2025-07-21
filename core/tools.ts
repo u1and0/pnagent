@@ -138,9 +138,7 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
     };
     console.error("sheet:", sheet);
 
-    const json = await postPNSearch(url, sheet as RequestToolParams, {
-      timeout: 100000,
-    });
+    const json = await postPNSearch(url, sheet, { timeout: 100000 });
     return JSON.stringify(json, null, 2);
   }
 }

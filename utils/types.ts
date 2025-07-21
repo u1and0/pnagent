@@ -182,3 +182,12 @@ export interface Sheet {
   header: Record<string, string>;
   body: Array<Record<string, string | number>>;
 }
+
+export interface ServerResponse<T = any> {
+  response: {
+    msg: string;
+    errors: Array<T>;
+    sha256: string;
+    sheet: Sheet;
+  };
+}

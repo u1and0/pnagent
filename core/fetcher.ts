@@ -3,6 +3,7 @@ import type {
   FetchOptions,
   FetchResult,
   RequestToolParams,
+  ServerResponse,
 } from "../utils/types.ts";
 import { buildConfirmURL } from "../utils/urlBuilder.ts";
 
@@ -115,11 +116,11 @@ async function handleFetchError<T>(
  * @param options fetch用のオプションで、タイムアウトやリトライ回数など
  * @returns Promise<FetchResult<T>> JSONを返す
  */
-export async function postPNSearch<T = any>(
+export async function postPNSearch<ServerResponse>(
   url: URL,
   body: RequestToolParams,
   options: FetchOptions = {},
-): Promise<FetchResult<T>> {
+): Promise<FetchResult<ServerResponse>> {
   const { timeout = 10000 } = options;
 
   try {
@@ -135,15 +136,13 @@ export async function postPNSearch<T = any>(
 
     const responseText = await response.text();
     try {
-      const jsonResult = JSON.parse(responseText);
+      const jsonResult: ServerResponse = JSON.parse(responseText);
       // シート確認用hashを含むURLを作成
-      const confirmURL = buildConfirmURL(jsonResult.sha256);
-      // シート要素を削除したjsonResultを作成
-      const { _sheet, ...filteredResult } = jsonResult;
+      const confirmURL = buildConfirmURL(jsonResult.response.sha256);
 
       return {
         url: confirmURL.toString(),
-        result: filteredResult,
+        result: jsonResult,
         success: response.status < 400, // 400以上がエラー
       };
     } catch (error) {
