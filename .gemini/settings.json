@@ -1,6 +1,7 @@
 {
   "theme": "Shades Of Purple",
   "selectedAuthType": "gemini-api-key",
+  "autoAccept": true,
   "mcpServers": {
     "time": {
       "command": "uvx",

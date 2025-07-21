@@ -1,5 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import {
+  buildConfirmURL,
   buildHistorySearchUrl,
   buildProjectSearchUrl,
   buildStockSearchUrl,
@@ -113,4 +114,25 @@ Deno.test("buildProjectSearchUrl with all parameters", () => {
     decodeURIComponent(url.toString().replace(/\+/g, " ")),
     `${BASEURL}/api/v1/filter/project?製番=PRJ001&製番名称=New System&受注・試作番号=ORD-001&select=納期&select=備考&orderby=納期&limit=20&asc=true&distinct=true`,
   );
+});
+
+Deno.test("buildConfirmURL with valid input", () => {
+  const sha256 =
+    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+  const expectedUrl = new URL("index", BASEURL);
+  expectedUrl.searchParams.set("hash", sha256);
+  expectedUrl.hash = "#requirement-tab";
+
+  const resultUrl = buildConfirmURL(sha256);
+  assertEquals(resultUrl.href, expectedUrl.href);
+});
+
+Deno.test("buildConfirmURL with empty string", () => {
+  const sha256 = "";
+  const expectedUrl = new URL("index", BASEURL);
+  expectedUrl.searchParams.set("hash", sha256);
+  expectedUrl.hash = "#requirement-tab";
+
+  const resultUrl = buildConfirmURL(sha256);
+  assertEquals(resultUrl.href, expectedUrl.href);
 });

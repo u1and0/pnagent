@@ -1,22 +1,29 @@
 /* pnagent.tsで使用される Tool の定義を書く*/
 import type { ZodObject } from "npm:zod@3.24.2";
-import { fetchPNSearch } from "./fetcher.ts";
+import { fetchPNSearch, postPNSearch } from "./fetcher.ts";
 import {
   buildHistorySearchUrl,
+  buildPartsMasterSearchUrl,
   buildProjectSearchUrl,
+  buildRequestsUrl,
   buildStockSearchUrl,
 } from "../utils/urlBuilder.ts";
 import type {
   HistoryField,
   HistorySearchParams,
+  PartsMasterField,
+  PartsMasterSearchParams,
   ProjectField,
   ProjectSearchParams,
+  RequestToolParams,
   StockField,
   StockSearchParams,
 } from "../utils/types.ts";
 import {
   HistorySearchSchema,
+  PartsMasterSearchSchema,
   ProjectSearchSchema,
+  RequestToolSchema,
   StockSearchSchema,
 } from "../utils/types.ts";
 
@@ -58,6 +65,18 @@ export class StockSearchTool extends SearchTool<typeof StockSearchSchema> {
   }
 }
 
+export class PartsMasterSearchTool
+  extends SearchTool<typeof PartsMasterSearchSchema> {
+  name = "PartsMasterSearch";
+  description = "ユーザーの入力を部品マスタ検索用URLに変換して結果を返す";
+  parameters = PartsMasterSearchSchema;
+  protected readonly defaultSelect: PartsMasterField[] = ["品番"];
+
+  protected buildUrl(params: PartsMasterSearchParams): URL {
+    return buildPartsMasterSearchUrl(params, this.defaultSelect);
+  }
+}
+
 export class ProjectSearchTool extends SearchTool<typeof ProjectSearchSchema> {
   name = "ProjectSearch";
   description = "ユーザーの入力を製番検索用URLに変換して結果を返す";
@@ -66,5 +85,60 @@ export class ProjectSearchTool extends SearchTool<typeof ProjectSearchSchema> {
 
   protected buildUrl(params: ProjectSearchParams): URL {
     return buildProjectSearchUrl(params, this.defaultSelect);
+  }
+}
+
+export class RequestTool extends SearchTool<typeof RequestToolSchema> {
+  name = "requestTool";
+  description =
+    "POSTリクエストを送信して正しい要求票の形式であることをPNSearchに確認してもらうツール";
+  parameters = RequestToolSchema;
+
+  protected buildUrl(_params: RequestToolParams): URL {
+    return buildRequestsUrl();
+  }
+
+  override async execute(params: RequestToolParams): Promise<string> {
+    const url = this.buildUrl(params);
+    console.error("URL:", decodeURIComponent(url.toString()));
+
+    const sheet = {
+      config: {
+        validatable: true,
+        sortable: true,
+        overridable: true,
+      },
+      header: {
+        発注区分: params.header.発注区分,
+        製番: params.header.製番,
+        製番名称: params.header.製番名称 || "",
+        要求年月日: params.header.要求年月日,
+        製番納期: params.header.製番納期 || "",
+        ファイル名: params.header.ファイル名 || "testfile.xlsx",
+        要求元: params.header.要求元 || "特機技術部",
+        備考: params.header.備考 || "",
+      },
+      orders: params.orders.map((order) => ({
+        Lv: order.Lv || 2,
+        品番: order.品番.toUpperCase(),
+        品名: order.品名 || "",
+        型式: order.型式 || "",
+        在庫数: order.在庫数 || 0,
+        数量: order.数量,
+        単位: order.単位 || "",
+        要望納期: order.要望納期,
+        検区: order.検区 || "",
+        装置名: order.装置名 || "",
+        号機: order.号機,
+        メーカ: order.メーカ || "",
+        要望先: order.要望先 || "資材一任",
+        予定単価: order.予定単価,
+        金額: order.金額 || 0,
+      })),
+    };
+    console.error("sheet:", sheet);
+
+    const json = await postPNSearch(url, sheet, { timeout: 100000 });
+    return JSON.stringify(json, null, 2);
   }
 }

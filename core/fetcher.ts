@@ -1,5 +1,11 @@
 /* PNSearch エンドポイントへのfetch処理関連 */
-import type { FetchOptions, FetchResult } from "../utils/types.ts";
+import type {
+  FetchOptions,
+  FetchResult,
+  RequestToolParams,
+  ServerResponse,
+} from "../utils/types.ts";
+import { buildConfirmURL } from "../utils/urlBuilder.ts";
 
 /**
  * PNSearch APIエンドポイントへのfetchメイン関数
@@ -101,4 +107,85 @@ async function handleFetchError<T>(
   console.error("Fetch error:", error);
   const message = error instanceof Error ? error.message : String(error);
   return { url: decodedURL, result: `Fetch error: ${message}`, success: false };
+}
+
+/**
+ * PNSearch APIエンドポイントへのPOSTメイン関数
+ * @param url POSTメソッドへのURL
+ * @param body POSTするJSONデータ
+ * @param options fetch用のオプションで、タイムアウトやリトライ回数など
+ * @returns Promise<FetchResult<T>> JSONを返す
+ */
+export async function postPNSearch<ServerResponse>(
+  url: URL,
+  body: RequestToolParams,
+  options: FetchOptions = {},
+): Promise<FetchResult<ServerResponse>> {
+  const { timeout = 10000 } = options;
+
+  try {
+    const response = await postWithTimeout(url, body, timeout);
+
+    if (response.status === 204) {
+      return {
+        url: "",
+        result: "HTTP 204: No Content",
+        success: response.ok,
+      };
+    }
+
+    const responseText = await response.text();
+    try {
+      const jsonResult: ServerResponse = JSON.parse(responseText);
+      // シート確認用hashを含むURLを作成
+      const confirmURL = buildConfirmURL(jsonResult.response.sha256);
+
+      return {
+        url: confirmURL.toString(),
+        result: jsonResult,
+        success: response.status < 400, // 400以上がエラー
+      };
+    } catch (error) {
+      console.error("Failed to parse JSON:", error);
+      return {
+        url: "",
+        result:
+          `HTTP ${response.status}: ${response.statusText}. Failed to parse response as JSON. Body: ${responseText}`,
+        success: false,
+      };
+    }
+  } catch (error) {
+    // POSTなのでリトライはしない
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      url: "",
+      result: `Fetch error: ${message}`,
+      success: false,
+    };
+  }
+}
+
+/** タイムアウト付きPOST */
+async function postWithTimeout(
+  url: URL,
+  body: RequestToolParams,
+  timeout: number,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
