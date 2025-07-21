@@ -133,7 +133,7 @@ const RequestOrdersSchema = z.array(z.object({
     "PNSearch API will automatically correct it, so if you don't know, just leave it blank.",
   ),
   要望納期: z.string().describe("Default next month"),
-  検区: z.enum(["10", "20", "30", ""]).describe(
+  検区: z.enum(["10", "20", "30", " "]).describe(
     "PNSearch API will automatically correct it, so if you don't know, just leave it blank. Default 20 by 検査有 or Blank by 検査無",
   ),
   装置名: z.string().optional().describe("Default Blank"),
