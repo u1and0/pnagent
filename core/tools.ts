@@ -115,7 +115,7 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
         要求年月日: params.header.要求年月日,
         製番納期: params.header.製番納期 || "",
         ファイル名: params.header.ファイル名 || "testfile.xlsx",
-        要求元: params.header.要求元 || "特機技術部",
+        要求元: params.header.要求元 || "PNAgent",
         備考: params.header.備考 || "",
       },
       orders: params.orders.map((order) => ({

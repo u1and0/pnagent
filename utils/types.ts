@@ -112,7 +112,7 @@ const RequestHeaderSchema = z.object({
     "PNSearch API will automatically correct it, so if you don't know, just leave it blank. YYYY/MM/DD format",
   ),
   ファイル名: z.string().optional().describe("Default Blank"),
-  要求元: z.string().optional().describe("Default 特機技術部"),
+  要求元: z.string().optional().describe("Default PNAgent"),
   備考: z.string().optional().describe("Default Blank"),
 });
 
