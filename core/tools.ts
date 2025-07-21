@@ -115,7 +115,7 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
         要求年月日: params.header.要求年月日,
         製番納期: params.header.製番納期 || "",
         ファイル名: params.header.ファイル名 || "testfile.xlsx",
-        要求元: params.header.要求元 || "特機技術部",
+        要求元: params.header.要求元 || "PNAgent",
         備考: params.header.備考 || "",
       },
       orders: params.orders.map((order) => ({
@@ -124,12 +124,12 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
         品名: order.品名 || "",
         型式: order.型式 || "",
         在庫数: order.在庫数 || 0,
-        数量: order.数量,
+        数量: order.数量 || 1,
         単位: order.単位 || "",
         要望納期: order.要望納期,
-        検区: order.検区 || "",
+        検区: order.検区 || "20",
         装置名: order.装置名 || "",
-        号機: order.号機,
+        号機: order.号機 || "PNAgent",
         メーカ: order.メーカ || "",
         要望先: order.要望先 || "資材一任",
         予定単価: order.予定単価,
@@ -137,6 +137,7 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
       })),
     };
     console.error("sheet:", sheet);
+    Deno.writeTextFile("error.log", JSON.stringify(sheet), { append: true });
 
     const json = await postPNSearch(url, sheet, { timeout: 100000 });
     return JSON.stringify(json, null, 2);
