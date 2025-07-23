@@ -74,6 +74,7 @@ All search tools extend the abstract `SearchTool<T>` base class for consistent b
 - このリクエストにおける製番とは、"製番"(12桁)と"製番枝番"(3桁) を併せた15桁です。大抵の枝番は"000"ですので、製番検索しても不明な場合は、製番の末尾に"000"をつけてください。
 - requestToolのパラメータは、引数名をTypeScriptのZodスキーマで定義されている日本語のプロパティ名に合わせてください。
 - 検索しても"製番"が空欄(blank)だった場合は、製番上6桁で"受注・試作番号"を検索して、適切な製番を探してください。
+- RequestToolを使うときは以下のプロパティ名を使ってPOSTデータを作ってください。
 
 
 #### RequesttoolHeaderのプロパティ名:
