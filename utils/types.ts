@@ -8,7 +8,7 @@ import {
 
 // Zod スキーマ
 export const PartsMasterSearchSchema = z.object({
-  品番: z.string().describe(
+  品番: z.string().optional().describe(
     "Parts ID, large case 3-digit alpabet with numbers or just only alphabet",
   ),
   品名: z.string().optional().describe("Parts name, Japanese name"),
