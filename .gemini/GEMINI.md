@@ -39,7 +39,7 @@ The codebase follows a schema-first design with strong TypeScript types generate
 ### Four Main MCP Tools
 
 1. **StockSearchTool** - Parts inventory searches
-2. **HistorySearchTool** - Order history queries  
+2. **HistorySearchTool** - Order history queries
 3. **ProjectSearchTool** - Project/manufacturing number lookups
 4. **RequestTool** - POST requests for purchase order validation
 
@@ -73,6 +73,7 @@ All search tools extend the abstract `SearchTool<T>` base class for consistent b
 - ユーザーが最後に知りたいのはsha256が含まれたURLです。
 - このリクエストにおける製番とは、"製番"(12桁)と"製番枝番"(3桁) を併せた15桁です。大抵の枝番は"000"ですので、製番検索しても不明な場合は、製番の末尾に"000"をつけてください。
 - requestToolのパラメータは、引数名をTypeScriptのZodスキーマで定義されている日本語のプロパティ名に合わせてください。
+    - utils/types.ts 参照
 - 検索しても"製番"が空欄(blank)だった場合は、製番上6桁で"受注・試作番号"を検索して、適切な製番を探してください。
 - RequestToolを使うときは以下のプロパティ名を使ってPOSTデータを作ってください。
 
