@@ -139,7 +139,8 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
       })),
     };
     console.error("sheet:", sheet);
-    Deno.writeTextFile("error.log", JSON.stringify(sheet), { append: true });
+    // DEBUG
+    // Deno.writeTextFile("error.log", JSON.stringify(sheet), { append: true });
 
     const json = await postPNSearch(url, sheet, { timeout: 100000 });
     return JSON.stringify(json, null, 2);
