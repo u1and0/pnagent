@@ -1,7 +1,7 @@
 {
-  "theme": "Shades Of Purple",
-  "selectedAuthType": "gemini-api-key",
-  "autoAccept": true,
+  "tools": {
+    "autoAccept": true
+  },
   "mcpServers": {
     "time": {
       "command": "uvx",
@@ -12,8 +12,22 @@
     },
     "pnagent": {
       "command": "deno",
-      "args": ["run",  "-A",  "./pnagent.ts"]
+      "args": [
+        "run",
+        "-A",
+        "./pnagent.ts"
+      ],
+      "env": {
+          "PNSEARCH_BASE":"http://192.168.160.118:9000"
+      }
     }
+  },
+  "security": {
+    "auth": {
+      "selectedType": "gemini-api-key"
+    }
+  },
+  "ui": {
+    "theme": "Shades Of Purple"
   }
 }
-
