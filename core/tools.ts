@@ -102,10 +102,12 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
     const url = this.buildUrl(params);
     console.error("URL:", decodeURIComponent(url.toString()));
 
+    // LLMが指定したパラメータに応じてPOST dataを作成する。
+    // LLMの指定がなければデフォルト値を充てる
     const sheet = {
       config: {
         validatable: true,
-        sortable: true,
+        sortable: true, // api/v1/requests
         overridable: true,
       },
       header: {
@@ -119,7 +121,7 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
         備考: params.header.備考 || "",
       },
       orders: params.orders.map((order) => ({
-        Lv: order.Lv || 2,
+        Lv: order.Lv || 2, // 新しいConfirmでは不要
         品番: order.品番.toUpperCase(),
         品名: order.品名 || "",
         型式: order.型式 || "",
@@ -139,7 +141,8 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
       })),
     };
     console.error("sheet:", sheet);
-    Deno.writeTextFile("error.log", JSON.stringify(sheet), { append: true });
+    // DEBUG
+    // Deno.writeTextFile("error.log", JSON.stringify(sheet), { append: true });
 
     const json = await postPNSearch(url, sheet, { timeout: 100000 });
     return JSON.stringify(json, null, 2);
