@@ -127,7 +127,9 @@ export class RequestTool extends SearchTool<typeof RequestToolSchema> {
         数量: order.数量 || 1,
         単位: order.単位 || "",
         要望納期: order.要望納期,
-        検区: order.検区 || "20",
+        検区: order.検区 === undefined || order.検区 === null
+          ? "20" // undefined(検区を指定しない)かnullの場合にデフォルト値20
+          : order.検区, // 空文字は"検区なし"として許容する。
         装置名: order.装置名 || "",
         号機: order.号機 || "PNAgent",
         メーカ: order.メーカ || "",
